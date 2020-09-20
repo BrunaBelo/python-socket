@@ -1,34 +1,27 @@
 import socket
 import time
 
-# Criar o socket
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-
-# Conectar ao servidor com ip e porta
 sock.connect(('localhost', 9000))
 
-# Leia o tamanho da mensagem
-expected_data_size = int(sock.recv(4).decode())
-print("Tamanho de dado esperado = {}".format(expected_data_size))
+while True:
+    expected_data_size = int(sock.recv(4).decode())
+    received_data = ''
 
-received_data = ''
-while len(received_data) < expected_data_size:
-    # Ler o dado recebido
-    received_data += sock.recv(4).decode()
-    print("Tamanho do dado {}".format(len(received_data)))
-print(received_data)
+    while len(received_data) < expected_data_size:
+        received_data += sock.recv(4).decode()
+    print(received_data)
 
+    if received_data == 'see ya':
+        sock.close()
 
-# Tamanho da mensagem
-mensagem = "Ola servidor"
-send_data_size = len(mensagem)
-sock.sendall(str(send_data_size).zfill(4).encode())
+    message = raw_input("cliente: ").strip()
+    send_data_size = len(message)
+    sock.sendall(str(send_data_size).zfill(4).encode())
+    sock.sendall(message.encode())
 
-# Enviar a mensagem
-sock.sendall(mensagem.encode())
+    time.sleep(3)
 
-#
-time.sleep(3)
+    if message == 'see ya':
+        sock.close()
 
-# Finalizar a conexao
-sock.close()
